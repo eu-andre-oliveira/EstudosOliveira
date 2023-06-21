@@ -1,0 +1,54 @@
+using System;
+using System.Data;
+using Dapper;
+using System.Linq;
+using System.Collections.Generic;
+using MySql.Data.MySqlClient;
+
+public class Employee
+{
+    public int EmployeeId { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+}
+
+public class DapperCRUD
+{
+    private readonly IDbConnection _db;
+
+    public DapperCRUD()
+    {
+        _db = new MySqlConnection("Server=localhost;Database=employee;Uid=root;Pwd=password;");
+    }
+
+    public void Insert(Employee employee)
+    {
+        var sql = "INSERT INTO Employee (FirstName, LastName, Email) VALUES (@FirstName, @LastName, @Email)";
+        _db.Execute(sql, employee);
+    }
+
+    public void Update(Employee employee)
+    {
+        var sql = "UPDATE Employee SET FirstName = @FirstName, LastName = @LastName, Email = @Email WHERE EmployeeId = @EmployeeId";
+        _db.Execute(sql, employee);
+    }
+
+    public void Delete(int id)
+    {
+        var sql = "DELETE FROM Employee WHERE EmployeeId = @id";
+        _db.Execute(sql, new { id });
+    }
+
+    public Employee Get(int id)
+    {
+        var sql = "SELECT * FROM Employee WHERE EmployeeId = @id";
+        return _db.Query<Employee>(sql, new { id }).FirstOrDefault();
+    }
+
+    public IEnumerable<Employee> GetAll()
+    {
+        var sql = "SELECT * FROM Employee";
+        return _db.Query<Employee>(sql);
+    }
+}	
